@@ -2,7 +2,7 @@
 
 A from-scratch simulation of ZeRO (Zero Redundancy Optimizer) running across 32 simulated GPUs, written in plain numpy with no deep learning framework. It trains a small MLP under four different memory schemes (ordinary data parallelism, then ZeRO stages 1, 2 and 3) and measures how per-GPU memory and per-step network traffic change between them.
 
-Notebook: [`notebooks/zero_parallelism_simulator.ipynb`](notebooks/zero_parallelism_simulator.ipynb)
+Notebook: [`notebooks/zero_parallelism_simulator.ipynb`]
 
 ---
 
