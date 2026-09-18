@@ -71,7 +71,7 @@ What you actually trade away is network bandwidth, and only at stage 3.
 | | Baseline DDP | ZeRO-1 | ZeRO-2 | ZeRO-3 |
 |---|---|---|---|---|
 | Memory / GPU (bytes/param, N=32) | 16 | 8.25 | 4.375 | 0.5 |
-| Communication / step | `2Ψ` | `2Ψ` | `2Ψ` | `3Ψ` (≈1.5×) |
+| Communication / step | `2` | `2` | `2` | `3` (≈1.5×) |
 | FLOPs / GPU | same | same | same | same |
 
 Stages 1 and 2 are close to free. A ring all-reduce is already built internally out of a reduce-scatter phase followed by an all-gather phase, `2Ψ` bytes in total. ZeRO-1 and ZeRO-2 use that identical pattern: reduce-scatter so each rank receives the gradient slice it owns, run the optimizer step locally on just that slice, then all-gather the updated weights back out. Same bytes on the wire, just arranged differently.
@@ -82,7 +82,7 @@ Stage 3 is where you start paying. With no full copy of the weights sitting anyw
 
 ## What's actually being simulated
 
-There aren't 32 real accelerators here. A `VirtualGPU` in [`src/zero_sim/cluster.py`](src/zero_sim/cluster.py) is just a Python object with one rule enforced on it: it may only read or write its own shard, which is the same restriction a real GPU operates under. The 32 ranks run sequentially in a single process, and the collectives (all-gather, reduce-scatter) are carried out with real numpy slicing and concatenation, with the resulting array sizes measured via `.nbytes` and reported as memory and communication figures.
+There aren't 32 real accelerators here. A `VirtualGPU` in [`src/zero_sim/cluster.py`] is just a Python object with one rule enforced on it: it may only read or write its own shard, which is the same restriction a real GPU operates under. The 32 ranks run sequentially in a single process, and the collectives (all-gather, reduce-scatter) are carried out with real numpy slicing and concatenation, with the resulting array sizes measured via `.nbytes` and reported as memory and communication figures.
 
 That makes this an accurate model of ZeRO's memory layout and communication pattern, which is what the algorithm actually changes. It is not a model of the wall-clock speedup you'd get from 32 GPUs computing in parallel over a real interconnect, and the notebook is explicit about that rather than presenting misleading timing numbers.
 
